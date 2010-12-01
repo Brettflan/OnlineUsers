@@ -1,6 +1,6 @@
-public abstract class DataSource {
+public abstract class OnlineUsersDataSource {
 	
-	public DataSource() {
+	public OnlineUsersDataSource() {
 		
 	}
 	

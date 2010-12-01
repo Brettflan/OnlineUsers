@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
-public class MySQL extends DataSource {
+public class OnlineUsersMySQL extends OnlineUsersDataSource {
 	
 	private String name = OnlineUsers.name;
 

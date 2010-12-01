@@ -32,9 +32,10 @@ public class OnlineUsers extends Plugin  {
     public static String connectorJar          = "mysql-connector-java-bin.jar";
     public static String destination           = "mysql";
     public static String flatfile              = "online_users.txt";
+    public static String flatfileTemplate      = "online_users.template";
     
     private static ArrayList<String> bannedUsers	   = new ArrayList<String>();
-    private static DataSource ds;
+    private static OnlineUsersDataSource ds;
     
 	public void enable() {
 		if (!initProps()) {
@@ -44,9 +45,9 @@ public class OnlineUsers extends Plugin  {
 		}
 		
 		if (destination.equalsIgnoreCase("mysql")) {
-			ds = new MySQL();
+			ds = new OnlineUsersMySQL();
 		} else {
-			ds = new Flatfile();
+			ds = new OnlineUsersFlatfile();
 		}
 		
 		if (!ds.init()) {
@@ -83,6 +84,7 @@ public class OnlineUsers extends Plugin  {
 		props = new PropertiesFile(propFile);
 		destination = props.getString("destination", "mysql");
 		flatfile = props.getString("flatfile", "online_users.txt");
+		flatfileTemplate = props.getString("flatfile", "online_users.template");
 		hmodMySql = props.getBoolean("use-hmod-mysql-conn", true);
 		driver = props.getString("driver", "com.mysql.jdbc.Driver");
         user = props.getString("user", "root");
