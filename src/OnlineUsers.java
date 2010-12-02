@@ -33,6 +33,7 @@ public class OnlineUsers extends Plugin  {
     public static String destination           = "mysql";
     public static String flatfile              = "online_users.txt";
     public static String flatfileTemplate      = "online_users.template";
+    public static String flatfileData          = "online_users.data";
     
     private static ArrayList<String> bannedUsers	   = new ArrayList<String>();
     private static OnlineUsersDataSource ds;
@@ -57,7 +58,6 @@ public class OnlineUsers extends Plugin  {
 		}
 
 		ds.setAllOffline();
-		
 		initOnlineUsers();
 		log.info(name + " " + version + " enabled");
 	}
@@ -84,7 +84,8 @@ public class OnlineUsers extends Plugin  {
 		props = new PropertiesFile(propFile);
 		destination = props.getString("destination", "mysql");
 		flatfile = props.getString("flatfile", "online_users.txt");
-		flatfileTemplate = props.getString("flatfile", "online_users.template");
+		flatfileTemplate = props.getString("flatfile-template", "online_users.template");
+		flatfileData = props.getString("flatfile-data", "online_users.data");
 		hmodMySql = props.getBoolean("use-hmod-mysql-conn", true);
 		driver = props.getString("driver", "com.mysql.jdbc.Driver");
         user = props.getString("user", "root");
@@ -115,7 +116,7 @@ public class OnlineUsers extends Plugin  {
 		List<Player> players = etc.getServer().getPlayerList();
 		Iterator<Player> itr = players.iterator();
 		while (itr.hasNext()) {
-			ds.removeUser(itr.next().getName());
+			ds.addUser(itr.next().getName());
 		}
 	}
 	
