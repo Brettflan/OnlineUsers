@@ -1,5 +1,4 @@
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -14,7 +13,7 @@ public class OnlineUsers extends Plugin  {
 	private Listener l 						   = new Listener(this);
 	protected static final Logger log 		   = Logger.getLogger("Minecraft");
 	public static String name 				   = "OnlineUsers";
-	public static String version 			   = "1.3";
+	public static String version 			   = "1.3r2";
 	public static String propFile 			   = "online-users.properties";
 	public static String hModProps			   = "server.properties";
 	
@@ -29,13 +28,13 @@ public class OnlineUsers extends Plugin  {
     public static String table                 = "users_online";
     public static boolean removeOfflineUsers   = true;
     public static boolean removeBannedUsers    = true;
+    public static boolean removeKickedUsers    = true;
     public static String connectorJar          = "mysql-connector-java-bin.jar";
     public static String destination           = "mysql";
     public static String flatfile              = "online_users.txt";
     public static String flatfileTemplate      = "online_users.template";
     public static String flatfileData          = "online_users.data";
-    
-    private static ArrayList<String> bannedUsers	   = new ArrayList<String>();
+
     private static OnlineUsersDataSource ds;
     
 	public void enable() {
@@ -75,6 +74,7 @@ public class OnlineUsers extends Plugin  {
 		etc.getLoader().addListener( PluginLoader.Hook.LOGIN, l, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener( PluginLoader.Hook.BAN, l, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener( PluginLoader.Hook.IPBAN, l, this, PluginListener.Priority.MEDIUM);
+		etc.getLoader().addListener( PluginLoader.Hook.KICK, l, this, PluginListener.Priority.MEDIUM);
 	}
 	
 	public boolean initProps() {
@@ -95,21 +95,10 @@ public class OnlineUsers extends Plugin  {
         connectorJar = props.getString("mysql-connector-jar", connectorJar);
         removeOfflineUsers = props.getBoolean("remove-offline-users", true);
         removeBannedUsers = props.getBoolean("remove-banned-users", true);
+        removeKickedUsers = props.getBoolean("remove-kicked-users", true);
         
         File file = new File(propFile);
         return file.exists();
-	}
-	
-	public void addBannedUser(String name) {
-		bannedUsers.add(name);
-	}
-	
-	public boolean isBannedUser (String name) {
-		return bannedUsers.contains(name);
-	}
-	
-	public void removeBannedUser (String name) {
-		bannedUsers.remove(name);
 	}
 	
 	public void initOnlineUsers() {
@@ -132,23 +121,33 @@ public class OnlineUsers extends Plugin  {
 		}
 
 		public void onDisconnect(Player player) {
-			if (removeOfflineUsers || (removeBannedUsers && isBannedUser(player.getName())))
+			if (removeOfflineUsers)
 				ds.removeUser(player.getName());
 			else {
 				ds.setUserOffline(player.getName());
 			}
 		}
 		
+		public void onKick(Player mod, Player player, String reason) {
+			if (removeOfflineUsers || removeKickedUsers) {
+				ds.removeUser(player.getName());
+			} else {
+				ds.setUserOffline(player.getName());
+			}
+	    }
+		
 		@Override
 		public synchronized void onBan(Player mod, Player player, String reason) {
-			addBannedUser (player.getName());
-			this.onDisconnect(player);
-			removeBannedUser(player.getName());
+			if (removeOfflineUsers || removeBannedUsers) {
+				ds.removeUser(player.getName());
+			} else {
+				ds.setUserOffline(player.getName());
+			}
 		}
 
 		@Override
 		public synchronized void onIpBan(Player mod, Player player, String reason) {
-			onBan(mod, player, reason);
+			this.onBan(mod, player, reason);
 		}
 	}
 }
