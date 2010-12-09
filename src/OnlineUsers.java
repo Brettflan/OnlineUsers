@@ -13,7 +13,7 @@ public class OnlineUsers extends Plugin  {
 	private Listener l 						   = new Listener(this);
 	protected static final Logger log 		   = Logger.getLogger("Minecraft");
 	public static String name 				   = "OnlineUsers";
-	public static String version 			   = "1.3r2";
+	public static String version 			   = "1.3r3";
 	public static String propFile 			   = "online-users.properties";
 	public static String hModProps			   = "server.properties";
 	
