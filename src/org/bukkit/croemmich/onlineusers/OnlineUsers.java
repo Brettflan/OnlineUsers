@@ -25,7 +25,7 @@ public class OnlineUsers extends JavaPlugin {
     public OnlineUsersPlayerListener l = new OnlineUsersPlayerListener(this);
     
     public static final String name                         = "OnlineUsers";
-	public static final String version                      = "1.0";
+	public static final String version                      = "1.4";
     
     public static final String directory       = "OnlineUsers/";
     public static final String configFile      = "online_users.settings";
@@ -90,7 +90,7 @@ public class OnlineUsers extends JavaPlugin {
 		ds.setAllOffline();
 		initOnlineUsers();
 
-        System.out.println( name + " version " + version + " is enabled!" );
+		log.info( name + " version " + version + " is enabled!" );
     }
     
 	public boolean initProps() {
