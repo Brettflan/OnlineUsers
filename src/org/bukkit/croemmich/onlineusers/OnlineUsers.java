@@ -32,7 +32,6 @@ public class OnlineUsers extends JavaPlugin {
     
     public static OnlineUsersDataSource ds;
     public static String dataSource            = "mysql";
-    public static String driver                = "com.mysql.jdbc.Driver";
     public static String user                  = "root";
     public static String pass                  = "root";
     public static String db                    = "jdbc:mysql://localhost:3306/minecraft";
@@ -99,7 +98,6 @@ public class OnlineUsers extends JavaPlugin {
 		flatfile = settings.getString("flatfile", "online_users.txt");
 		flatfileTemplate = settings.getString("flatfile-template", "online_users.template");
 		flatfileData = settings.getString("flatfile-data", "online_users.data");
-		driver = settings.getString("driver", "com.mysql.jdbc.Driver");
         user = settings.getString("user", "root");
         pass = settings.getString("pass", "root");
         db = settings.getString("db", "jdbc:mysql://localhost:3306/minecraft");
