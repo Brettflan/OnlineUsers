@@ -11,7 +11,6 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.PluginManager;
 
 /**
 * @title  OnlineUsers
@@ -41,7 +40,6 @@ public class OnlineUsers extends JavaPlugin {
     public static boolean removeOfflineUsers   = true;
     //public static boolean removeBannedUsers    = true;
     //public static boolean removeKickedUsers    = true;
-    public static String connectorJar          = "mysql-connector-java-bin.jar";
     public static String destination           = "flatfile";
     public static String flatfile              = "online_users.txt";
     public static String flatfileTemplate      = "online_users.template";
@@ -106,7 +104,6 @@ public class OnlineUsers extends JavaPlugin {
         pass = settings.getString("pass", "root");
         db = settings.getString("db", "jdbc:mysql://localhost:3306/minecraft");
         table = settings.getString("table", "users_online");
-        connectorJar = settings.getString("mysql-connector-jar", connectorJar);
         removeOfflineUsers = settings.getBoolean("remove-offline-users", true);
         //removeBannedUsers = settings.getBoolean("remove-banned-users", true);
         //removeKickedUsers = settings.getBoolean("remove-kicked-users", true);
