@@ -21,7 +21,8 @@ import org.bukkit.plugin.PluginManager;
 */
 public class OnlineUsers extends JavaPlugin {
 	protected static final Logger log = Logger.getLogger("Minecraft");
-    private final OnlineUsersPlayerListener playerListener = new OnlineUsersPlayerListener(this, ds);
+	
+    public OnlineUsersPlayerListener l = new OnlineUsersPlayerListener(this);
     
     public static final String name                         = "OnlineUsers";
 	public static final String version                      = "1.0";
@@ -30,7 +31,7 @@ public class OnlineUsers extends JavaPlugin {
     public static final String configFile      = "online_users.settings";
     public static iProperty settings;
     
-    private static OnlineUsersDataSource ds;
+    public static OnlineUsersDataSource ds;
     public static String dataSource            = "mysql";
     public static String driver                = "com.mysql.jdbc.Driver";
     public static String user                  = "root";
@@ -50,9 +51,9 @@ public class OnlineUsers extends JavaPlugin {
     public OnlineUsers(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader) {
         super(pluginLoader, instance, desc, folder, plugin, cLoader);
 
-        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Normal, this);
-        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Normal, this);
-        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_COMMAND, playerListener, Priority.Normal, this);
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, l, Priority.Normal, this);
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, l, Priority.Normal, this);
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_COMMAND, l, Priority.Normal, this);
     }
 
     @Override
