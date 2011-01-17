@@ -1,5 +1,6 @@
 package org.bukkit.croemmich.onlineusers;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
@@ -62,11 +63,7 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
 	
 	private Connection getConnection() throws SQLException {
 		Connection conn = null;
-		try {
-			File file = new File(System.getProperty("user.dir")+File.pathSeparator+OnlineUsers.connectorJar);   
-			URL jarfile = new URL("jar", "","file:" + file.getAbsolutePath()+"!/");    
-			URLClassLoader cl = URLClassLoader.newInstance(new URL[] {jarfile });   
-			cl.loadClass(OnlineUsers.driver);
+		try{
 			conn = DriverManager.getConnection(OnlineUsers.db,OnlineUsers.user,OnlineUsers.pass);
 		} catch (Exception e) {
 			log.severe(name + ": " + e.getMessage());
