@@ -23,10 +23,10 @@ public class OnlineUsers extends JavaPlugin {
 	
     public OnlineUsersPlayerListener l = new OnlineUsersPlayerListener(this);
     
-    public static final String name                         = "OnlineUsers";
-	public static final String version                      = "1.4";
+    public final String name                   = getDescription().getName();
+	public final String version                = getDescription().getVersion();
     
-    public static final String directory       = "OnlineUsers/";
+    public static final String directory       = "plugins/OnlineUsers/";
     public static final String configFile      = "online_users.settings";
     public static iProperty settings;
     
@@ -65,6 +65,20 @@ public class OnlineUsers extends JavaPlugin {
 
     @Override
     public void onEnable() {
+    	
+    	File confdir = new File("OnlineUsers"); 
+    	if (confdir.exists()) {
+    		File newdir = new File(directory);
+    		if (!confdir.renameTo(newdir)) {
+    			log.severe(name + ": Could not move the OnlineUsers directory to the plugin folder. Please do so and restart your server.");
+    			getServer().getPluginManager().disablePlugin(this);
+    			return;
+    		} else {
+    			log.warning("****************************************");
+    			log.warning(name + ": The OnlineUsers directory has been moved to plugins/OnlineUsers.");
+    			log.warning("****************************************");
+    		}
+    	}
     	
     	if (!initProps()) {
 			log.severe(name + ": Could not initialise " + configFile);

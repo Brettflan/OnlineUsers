@@ -1,8 +1,4 @@
 package org.bukkit.croemmich.onlineusers;
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -33,6 +29,10 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
 	
 	@Override
 	public boolean init() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (Exception e) {};
+		
 		return createTable();
 	}
 

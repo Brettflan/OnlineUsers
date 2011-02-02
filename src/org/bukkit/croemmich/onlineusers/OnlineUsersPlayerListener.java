@@ -5,10 +5,10 @@ import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerListener;
 
 public class OnlineUsersPlayerListener extends PlayerListener {
-    private final OnlineUsers plugin;
+    //private final OnlineUsers plugin;
 
     public OnlineUsersPlayerListener(OnlineUsers instance) {
-        plugin = instance;
+       //plugin = instance;
     }
     
     @Override
