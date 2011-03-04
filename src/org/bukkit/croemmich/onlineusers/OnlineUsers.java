@@ -23,8 +23,8 @@ public class OnlineUsers extends JavaPlugin {
 	
     public OnlineUsersPlayerListener l = new OnlineUsersPlayerListener(this);
     
-    public final String name                   = getDescription().getName();
-	public final String version                = getDescription().getVersion();
+    public String name;
+	public String version;
     
     public static final String directory       = "plugins/OnlineUsers/";
     public static final String configFile      = "online_users.settings";
@@ -43,15 +43,6 @@ public class OnlineUsers extends JavaPlugin {
     public static String flatfile              = "online_users.txt";
     public static String flatfileTemplate      = "online_users.template";
     public static String flatfileData          = "online_users.data";
-    
-
-    public OnlineUsers(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader) {
-        super(pluginLoader, instance, desc, folder, plugin, cLoader);
-
-        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, l, Priority.Normal, this);
-        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, l, Priority.Normal, this);
-        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_COMMAND, l, Priority.Normal, this);
-    }
 
     @Override
     public void onDisable() {
@@ -60,12 +51,16 @@ public class OnlineUsers extends JavaPlugin {
 			ds.removeAllUsers();
 		}
 
-		log.info(name + " " + version + " disabled");
+		log.info(getDescription().getName() + " " + getDescription().getVersion() + " disabled");
     }
 
     @Override
     public void onEnable() {
-    	
+		name = getDescription().getName();
+		version = getDescription().getVersion();
+
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, l, Priority.Normal, this);
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, l, Priority.Normal, this);
     	File confdir = new File("OnlineUsers"); 
     	if (confdir.exists()) {
     		File newdir = new File(directory);
