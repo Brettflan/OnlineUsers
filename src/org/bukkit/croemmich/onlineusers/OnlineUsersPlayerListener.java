@@ -1,7 +1,8 @@
 
 package org.bukkit.croemmich.onlineusers;
 
-import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerListener;
 
 public class OnlineUsersPlayerListener extends PlayerListener {
@@ -12,12 +13,12 @@ public class OnlineUsersPlayerListener extends PlayerListener {
     }
     
     @Override
-    public void onPlayerJoin(PlayerEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) {
     	OnlineUsers.ds.addUser(event.getPlayer().getName());
     }
 
     @Override
-    public void onPlayerQuit(PlayerEvent event) {
+    public void onPlayerQuit(PlayerQuitEvent event) {
     	if (OnlineUsers.removeOfflineUsers)
     		OnlineUsers.ds.removeUser(event.getPlayer().getName());
 		else {
