@@ -1,5 +1,5 @@
 
-package org.bukkit.croemmich.onlineusers;
+package com.wimbli.onlineusers;
 
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;

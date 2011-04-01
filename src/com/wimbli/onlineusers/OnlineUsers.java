@@ -1,5 +1,5 @@
 
-package org.bukkit.croemmich.onlineusers;
+package com.wimbli.onlineusers;
 
 import java.io.File;
 import java.util.logging.Logger;
