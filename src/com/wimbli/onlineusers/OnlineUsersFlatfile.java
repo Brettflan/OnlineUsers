@@ -274,7 +274,7 @@ public class OnlineUsersFlatfile extends OnlineUsersDataSource {
 	}
 	
 	private String formatTime (String timestamp, String pattern) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
 		Date date = new Date(Long.parseLong(timestamp));
 		return dateFormat.format(date);
 	}
@@ -284,7 +284,7 @@ public class OnlineUsersFlatfile extends OnlineUsersDataSource {
 	}
 	
 	private String longtime (String timestamp) {
-		return formatTime(timestamp, "EEE, d MMM yyyy HH:mm:ss");
+		return formatTime(timestamp, "EEE, MMM d yyyy HH:mm:ss");
 	}
 	
 	private String onoff (String status) {
