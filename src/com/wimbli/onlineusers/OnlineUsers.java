@@ -21,7 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class OnlineUsers extends JavaPlugin {
 	protected static final Logger log = Logger.getLogger("Minecraft");
 	
-    public OnlineUsersPlayerListener l = new OnlineUsersPlayerListener(this);
+    public OnlineUsersPlayerListener l = new OnlineUsersPlayerListener();
     
     public String name;
 	public String version;

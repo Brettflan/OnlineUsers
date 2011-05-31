@@ -6,11 +6,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerListener;
 
 public class OnlineUsersPlayerListener extends PlayerListener {
-    //private final OnlineUsers plugin;
-
-    public OnlineUsersPlayerListener(OnlineUsers instance) {
-       //plugin = instance;
-    }
     
     @Override
     public void onPlayerJoin(PlayerJoinEvent event) {

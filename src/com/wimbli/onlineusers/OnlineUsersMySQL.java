@@ -20,10 +20,11 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
     private static String sqlCheckTableExist   = "SHOW TABLES LIKE '"+OnlineUsers.table+"'";
     private static String sqlAlterTableOnline  = "ALTER TABLE `"+OnlineUsers.table+"` ADD `online` bit(1) NOT NULL DEFAULT 0";
     private static String sqlAlterTableOnline2 = "ALTER TABLE `"+OnlineUsers.table+"` CHANGE  `online`  `online` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT  '0'";
-    private static String sqlOnlineUser 	   = "REPLACE INTO `"+OnlineUsers.table+"` (`name`, `time`, `online`) VALUES (?, NOW(), 1)";
-    private static String sqlOfflineUser 	   = "UPDATE `"+OnlineUsers.table+"` SET `online`=0 WHERE `name`=?";
+    private static String sqlAlterTableOnline3 = "ALTER TABLE `"+OnlineUsers.table+"` ADD `time_total` TIME NOT NULL DEFAULT 0";
+    private static String sqlOnlineUser 	   = "INSERT INTO `"+OnlineUsers.table+"` (`name`, `time`, `online`) VALUES (?, NOW(), 1) ON DUPLICATE KEY UPDATE `time`=NOW(), `online`=1";
+    private static String sqlOfflineUser 	   = "UPDATE `"+OnlineUsers.table+"` SET `time_total` = IF(`online`=1, ADDTIME(`time_total`, TIMEDIFF(NOW(), `time`)), `time_total`), `online`=0 WHERE `name`=?";
     private static String sqlDeleteOfflineUser = "DELETE FROM `"+OnlineUsers.table+"` WHERE `name`=?";
-    private static String sqlSetAllOffline     = "UPDATE `"+OnlineUsers.table+"` SET `online`=0";
+    private static String sqlSetAllOffline     = "UPDATE `"+OnlineUsers.table+"` SET `time_total` = IF(`online`=1, ADDTIME(`time_total`, TIMEDIFF(NOW(), `time`)), `time_total`), `online`=0";
     
 	
 	
@@ -131,9 +132,10 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
         	s = conn.createStatement();
         	s.executeUpdate(sqlMakeTable);
         	try {
+        		s.executeUpdate(sqlAlterTableOnline3);
+        		log.info(name + ": Updating Table");
         		s.executeUpdate(sqlAlterTableOnline);
         		s.executeUpdate(sqlAlterTableOnline2);
-        		log.info(name + ": Updating Table");
         	} catch (SQLException ex2){}
         	ResultSet rs = s.executeQuery(sqlCheckTableExist);
         	if (rs.first()) {
