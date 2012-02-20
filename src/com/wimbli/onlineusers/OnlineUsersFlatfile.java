@@ -280,7 +280,7 @@ public class OnlineUsersFlatfile extends OnlineUsersDataSource {
 	}
 	
 	private String shorttime (String timestamp) {
-		return formatTime(timestamp, "yyyy-MM-dd hh:mm:ss");
+		return formatTime(timestamp, "yyyy-MM-dd HH:mm:ss");
 	}
 	
 	private String longtime (String timestamp) {
