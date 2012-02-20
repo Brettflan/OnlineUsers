@@ -1,18 +1,21 @@
 
 package com.wimbli.onlineusers;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerListener;
 
-public class OnlineUsersPlayerListener extends PlayerListener {
+
+public class OnlineUsersPlayerListener implements Listener {
     
-    @Override
+	@EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
     	OnlineUsers.ds.addUser(event.getPlayer().getName());
     }
 
-    @Override
+	@EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {
     	if (OnlineUsers.removeOfflineUsers)
     		OnlineUsers.ds.removeUser(event.getPlayer().getName());

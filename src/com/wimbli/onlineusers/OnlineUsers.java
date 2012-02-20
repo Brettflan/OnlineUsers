@@ -4,12 +4,7 @@ package com.wimbli.onlineusers;
 import java.io.File;
 import java.util.logging.Logger;
 
-import org.bukkit.Server;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -21,8 +16,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class OnlineUsers extends JavaPlugin {
 	protected static final Logger log = Logger.getLogger("Minecraft");
 	
-    public OnlineUsersPlayerListener l = new OnlineUsersPlayerListener();
-    
     public String name;
 	public String version;
     
@@ -47,11 +40,8 @@ public class OnlineUsers extends JavaPlugin {
     @Override
     public void onDisable() {
     	ds.setAllOffline();
-		if (removeOfflineUsers) {
+		if (removeOfflineUsers)
 			ds.removeAllUsers();
-		}
-
-		log.info(getDescription().getName() + " " + getDescription().getVersion() + " disabled");
     }
 
     @Override
@@ -59,9 +49,9 @@ public class OnlineUsers extends JavaPlugin {
 		name = getDescription().getName();
 		version = getDescription().getVersion();
 
-        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, l, Priority.Normal, this);
-        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, l, Priority.Normal, this);
-    	File confdir = new File("OnlineUsers"); 
+		getServer().getPluginManager().registerEvents(new OnlineUsersPlayerListener(), this);
+
+		File confdir = new File("OnlineUsers"); 
     	if (confdir.exists()) {
     		File newdir = new File(directory);
     		if (!confdir.renameTo(newdir)) {
@@ -95,8 +85,6 @@ public class OnlineUsers extends JavaPlugin {
 
 		ds.setAllOffline();
 		initOnlineUsers();
-
-		log.info( name + " version " + version + " is enabled!" );
     }
     
 	public boolean initProps() {
@@ -112,8 +100,6 @@ public class OnlineUsers extends JavaPlugin {
         db = settings.getString("db", "jdbc:mysql://localhost:3306/minecraft");
         table = settings.getString("table", "users_online");
         removeOfflineUsers = settings.getBoolean("remove-offline-users", true);
-        //removeBannedUsers = settings.getBoolean("remove-banned-users", true);
-        //removeKickedUsers = settings.getBoolean("remove-kicked-users", true);
         
         File file = new File(directory + configFile);
         return file.exists();
