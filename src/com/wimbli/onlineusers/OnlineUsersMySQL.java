@@ -19,9 +19,9 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
     												"`time_total` int DEFAULT 0, " +
     												"PRIMARY KEY (`name`))";
     private static String sqlOnlineUser 	   = "INSERT INTO `"+OnlineUsers.table+"` (`name`, `time`, `online`) VALUES (?, NOW(), 1) ON DUPLICATE KEY UPDATE `time`=NOW(), `online`=1";
-    private static String sqlOfflineUser 	   = "UPDATE `"+OnlineUsers.table+"` SET `time_total` = IF(`online`=1, `time_total` +  TIMESTAMPDIFF(SECOND, `time`, NOW()), `time_total`), `online`=0 WHERE `name`=?";
+    private static String sqlOfflineUser 	   = "UPDATE `"+OnlineUsers.table+"` SET `time_total` = IF(`online`=1, `time_total` + TIMESTAMPDIFF(SECOND, `time`, NOW()), `time_total`), `online`=0 WHERE `name`=?";
     private static String sqlDeleteOfflineUser = "DELETE FROM `"+OnlineUsers.table+"` WHERE `name`=?";
-    private static String sqlSetAllOffline     = "UPDATE `"+OnlineUsers.table+"` SET `time_total` = IF(`online`=1, `time_total` +  TIMESTAMPDIFF(SECOND, `time`, NOW()), `time_total`), `online`=0";
+    private static String sqlSetAllOffline     = "UPDATE `"+OnlineUsers.table+"` SET `time_total` = IF(`online`=1, `time_total` + TIMESTAMPDIFF(SECOND, `time`, NOW()), `time_total`), `online`=0";
 
 	// these are run see if update for older databases is needed, and then update them if so
     private static String sqlCheckTableExist   = "SHOW TABLES LIKE '"+OnlineUsers.table+"'";
@@ -148,7 +148,8 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
 					{
 		        		log.info(name + ": Updating Table, changing time_total column from TIME to INT");
 						// sadly altering a column directly from TIME to INT will reset all values to 0, so out of necessity,
-						// we first rename the column, then create a new one with the new type, then translate the values over, then delete the original column to clean up
+						// we first rename the column, then create a new one with the new type,
+						// then translate the values over, then delete the original column to clean up
 		        		s.executeUpdate(sqlAlterTableTimeTt1);
 		        		s.executeUpdate(sqlAlterTableTimeTt2);
 		        		s.executeUpdate(sqlAlterTableTimeTt3);
