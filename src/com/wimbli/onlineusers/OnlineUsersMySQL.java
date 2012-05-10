@@ -16,6 +16,7 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
     private static String sqlMakeTable 		   = "CREATE TABLE IF NOT EXISTS `"+OnlineUsers.table+"` ("+
     												"`name` varchar(32) NOT NULL, " +
     												"`time` datetime DEFAULT NULL, " +
+    												"`online` tinyint(1) UNSIGNED NOT NULL DEFAULT 0, " +
     												"`time_total` int DEFAULT 0, " +
     												"PRIMARY KEY (`name`))";
     private static String sqlOnlineUser 	   = "INSERT INTO `"+OnlineUsers.table+"` (`name`, `time`, `online`) VALUES (?, NOW(), 1) ON DUPLICATE KEY UPDATE `time`=NOW(), `online`=1";
@@ -26,8 +27,8 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
 	// these are run see if update for older databases is needed, and then update them if so
     private static String sqlCheckTableExist   = "SHOW TABLES LIKE '"+OnlineUsers.table+"'";
     private static String sqlCheckTableTimeTt  = "SHOW COLUMNS FROM `"+OnlineUsers.table+"` WHERE `Field` = 'time_total'";
-    private static String sqlAlterTableOnline  = "ALTER TABLE `"+OnlineUsers.table+"` ADD `online` bit(1) NOT NULL DEFAULT 0";
-    private static String sqlAlterTableOnline2 = "ALTER TABLE `"+OnlineUsers.table+"` CHANGE  `online`  `online` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT  0";
+    private static String sqlCheckTableOnline  = "SHOW COLUMNS FROM `"+OnlineUsers.table+"` WHERE `Field` = 'online'";
+    private static String sqlAlterTableOnline  = "ALTER TABLE `"+OnlineUsers.table+"` ADD `online` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0";
     private static String sqlAlterTableTimeTtA = "ALTER TABLE `"+OnlineUsers.table+"` ADD `time_total` INT NOT NULL DEFAULT 0";
     private static String sqlAlterTableTimeTt1 = "ALTER TABLE `"+OnlineUsers.table+"` CHANGE `time_total` `time_total_old` TIME NOT NULL DEFAULT '00:00:00'";
     private static String sqlAlterTableTimeTt2 = "ALTER TABLE `"+OnlineUsers.table+"` ADD `time_total` INT NOT NULL DEFAULT 0";
@@ -141,12 +142,21 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
         	s.executeUpdate(sqlMakeTable);
 			// Run sqlCheckTableTimeTt query to see if time_total column exists, and check column type
         	try {
-	        	rs = s.executeQuery(sqlCheckTableTimeTt);
+				// make sure `online` column exists
+	        	rs = s.executeQuery(sqlCheckTableOnline);
+	        	if (!rs.first())
+				{
+					log.info(name + ": Updating Table, adding 'online' column");
+					s.executeUpdate(sqlAlterTableOnline);
+				}
+				rs.close();
+
+				rs = s.executeQuery(sqlCheckTableTimeTt);
 	        	if (rs.first()) {
 					// `time_total` column exists, but does it need to be altered from TIME to INT?
 					if (!rs.getString("Type").toLowerCase().startsWith("int"))
 					{
-		        		log.info(name + ": Updating Table, changing time_total column from TIME to INT");
+		        		log.info(name + ": Updating Table, changing 'time_total' column from TIME to INT");
 						// sadly altering a column directly from TIME to INT will reset all values to 0, so out of necessity,
 						// we first rename the column, then create a new one with the new type,
 						// then translate the values over, then delete the original column to clean up
@@ -162,8 +172,6 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
 				}
         		log.info(name + ": Updating Table");
         		s.executeUpdate(sqlAlterTableTimeTtA);
-        		s.executeUpdate(sqlAlterTableOnline);
-        		s.executeUpdate(sqlAlterTableOnline2);
         	} catch (SQLException ex2){}
         	rs = s.executeQuery(sqlCheckTableExist);
         	if (rs.first()) {
