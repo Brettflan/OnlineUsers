@@ -15,7 +15,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 */
 public class OnlineUsers extends JavaPlugin {
 	protected static final Logger log = Logger.getLogger("Minecraft");
-	
+
+	private OnlineUsersTask task;
+
     public String name;
 	public String version;
     
@@ -48,6 +50,9 @@ public class OnlineUsers extends JavaPlugin {
     public void onEnable() {
 		name = getDescription().getName();
 		version = getDescription().getVersion();
+
+		task = new OnlineUsersTask();
+		task.runTaskTimerAsynchronously(this, 1, 1);
 
 		getServer().getPluginManager().registerEvents(new OnlineUsersPlayerListener(), this);
 

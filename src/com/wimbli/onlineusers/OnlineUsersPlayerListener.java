@@ -12,15 +12,11 @@ public class OnlineUsersPlayerListener implements Listener {
     
 	@EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
-    	OnlineUsers.ds.addUser(event.getPlayer().getName());
+    	OnlineUsersTask.addPlayerChange(new PlayerOnlineChange(event.getPlayer().getName(), true));
     }
 
 	@EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {
-    	if (OnlineUsers.removeOfflineUsers)
-    		OnlineUsers.ds.removeUser(event.getPlayer().getName());
-		else {
-			OnlineUsers.ds.setUserOffline(event.getPlayer().getName());
-		}
+    	OnlineUsersTask.addPlayerChange(new PlayerOnlineChange(event.getPlayer().getName(), false));
     }
 }
