@@ -12,11 +12,11 @@ public class OnlineUsersPlayerListener implements Listener {
     
 	@EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(PlayerJoinEvent event) {
-    	OnlineUsersTask.addPlayerChange(new PlayerOnlineChange(event.getPlayer().getName(), true));
+    	OnlineUsersTask.addPlayerChange(new PlayerOnlineChange(event.getPlayer().getName(), event.getPlayer().getUniqueId(), true));
     }
 
 	@EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(PlayerQuitEvent event) {
-    	OnlineUsersTask.addPlayerChange(new PlayerOnlineChange(event.getPlayer().getName(), false));
+    	OnlineUsersTask.addPlayerChange(new PlayerOnlineChange(event.getPlayer().getName(), event.getPlayer().getUniqueId(), false));
     }
 }

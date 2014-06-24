@@ -23,11 +23,11 @@ public class OnlineUsersTask extends BukkitRunnable
 				return;
 
 			if (change.getOnline())
-		    	OnlineUsers.ds.addUser(change.getName());
+		    	OnlineUsers.ds.addUser(change.getName(), change.getUUID());
 			else if (OnlineUsers.removeOfflineUsers)
-				OnlineUsers.ds.removeUser(change.getName());
+				OnlineUsers.ds.removeUser(change.getName(), change.getUUID());
 			else
-				OnlineUsers.ds.setUserOffline(change.getName());
+				OnlineUsers.ds.setUserOffline(change.getName(), change.getUUID());
 		}
 	}
 }

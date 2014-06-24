@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
+import java.util.UUID;
 
 public class OnlineUsersMySQL extends OnlineUsersDataSource {
 	
@@ -13,28 +14,23 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
 
 	protected static final Logger log 		   = Logger.getLogger("Minecraft");
     private static String sqlTruncateTable	   = "TRUNCATE `"+OnlineUsers.table+"`";
+	private static String sqlDropTable         = "DROP TABLE `"+OnlineUsers.table+"`";
     private static String sqlMakeTable 		   = "CREATE TABLE IF NOT EXISTS `"+OnlineUsers.table+"` ("+
+    												"`uuid` varchar(36) NOT NULL, " +
     												"`name` varchar(32) NOT NULL, " +
     												"`time` datetime DEFAULT NULL, " +
     												"`online` tinyint(1) UNSIGNED NOT NULL DEFAULT 0, " +
     												"`time_total` int DEFAULT 0, " +
-    												"PRIMARY KEY (`name`))";
-    private static String sqlOnlineUser 	   = "INSERT INTO `"+OnlineUsers.table+"` (`name`, `time`, `online`) VALUES (?, NOW(), 1) ON DUPLICATE KEY UPDATE `time`=NOW(), `online`=1";
-    private static String sqlOfflineUser 	   = "UPDATE `"+OnlineUsers.table+"` SET `time_total` = IF(`online`=1, `time_total` + TIMESTAMPDIFF(SECOND, `time`, NOW()), `time_total`), `online`=0 WHERE `name`=?";
-    private static String sqlDeleteOfflineUser = "DELETE FROM `"+OnlineUsers.table+"` WHERE `name`=?";
+    												"PRIMARY KEY (`uuid`))";
+    private static String sqlOnlineUser 	   = "INSERT INTO `"+OnlineUsers.table+"` (`name`, `uuid`, `time`, `online`) VALUES (?, ?, NOW(), 1) ON DUPLICATE KEY UPDATE `name`=?, `time`=NOW(), `online`=1";
+    private static String sqlOfflineUser 	   = "UPDATE `"+OnlineUsers.table+"` SET `time_total` = IF(`online`=1, `time_total` + TIMESTAMPDIFF(SECOND, `time`, NOW()), `time_total`), `online`=0 WHERE `uuid`=?";
+    private static String sqlDeleteOfflineUser = "DELETE FROM `"+OnlineUsers.table+"` WHERE `uuid`=?";
     private static String sqlSetAllOffline     = "UPDATE `"+OnlineUsers.table+"` SET `time_total` = IF(`online`=1, `time_total` + TIMESTAMPDIFF(SECOND, `time`, NOW()), `time_total`), `online`=0";
 
 	// these are run see if update for older databases is needed, and then update them if so
     private static String sqlCheckTableExist   = "SHOW TABLES LIKE '"+OnlineUsers.table+"'";
-    private static String sqlCheckTableTimeTt  = "SHOW COLUMNS FROM `"+OnlineUsers.table+"` WHERE `Field` = 'time_total'";
-    private static String sqlCheckTableOnline  = "SHOW COLUMNS FROM `"+OnlineUsers.table+"` WHERE `Field` = 'online'";
-    private static String sqlAlterTableOnline  = "ALTER TABLE `"+OnlineUsers.table+"` ADD `online` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0";
-    private static String sqlAlterTableTimeTtA = "ALTER TABLE `"+OnlineUsers.table+"` ADD `time_total` INT NOT NULL DEFAULT 0";
-    private static String sqlAlterTableTimeTt1 = "ALTER TABLE `"+OnlineUsers.table+"` CHANGE `time_total` `time_total_old` TIME NOT NULL DEFAULT '00:00:00'";
-    private static String sqlAlterTableTimeTt2 = "ALTER TABLE `"+OnlineUsers.table+"` ADD `time_total` INT NOT NULL DEFAULT 0";
-    private static String sqlAlterTableTimeTt3 = "UPDATE `"+OnlineUsers.table+"` SET `time_total` = TIME_TO_SEC(`time_total_old`)";
-    private static String sqlAlterTableTimeTt4 = "ALTER TABLE `"+OnlineUsers.table+"` DROP `time_total_old`";
-	
+    private static String sqlCheckTableUUID    = "SHOW COLUMNS FROM `"+OnlineUsers.table+"` WHERE `Field` = 'uuid'";
+
 	
 	@Override
 	public boolean init() {
@@ -46,18 +42,18 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
 	}
 
 	@Override
-	public boolean addUser(String username) {
-		return execute(sqlOnlineUser,username);
+	public boolean addUser(String username, UUID uuid) {
+		return execute(sqlOnlineUser, username, uuid.toString());
 	}
 
 	@Override
-	public boolean removeUser(String username) {
-		return execute (sqlDeleteOfflineUser, username);
+	public boolean removeUser(String username, UUID uuid) {
+		return execute (sqlDeleteOfflineUser, uuid.toString());
 	}
 
 	@Override
-	public boolean setUserOffline(String username) {
-		return execute (sqlOfflineUser, username);
+	public boolean setUserOffline(String username, UUID uuid) {
+		return execute (sqlOfflineUser, uuid.toString());
 	}
 
 	@Override
@@ -92,12 +88,15 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
         }
 		return true;
 	}
-	
+
 	private boolean execute(String sql) {
-		return execute(sql, null);
+		return execute(sql, null, null);
 	}
-	
 	private boolean execute(String sql, String player) {
+		return execute(sql, player, null);
+	}
+
+	private boolean execute(String sql, String player, String uuid) {
 		Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -105,8 +104,12 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
         	ps = conn.prepareStatement(sql);
         	if (player != null && !player.equalsIgnoreCase("")) {
         		ps.setString(1, player);
+				if (uuid != null && !uuid.equalsIgnoreCase("")) {
+					ps.setString(2, uuid);
+					ps.setString(3, player);
+				}
         	}
-        	
+
         	if (ps.execute()) {
         		return true;
         	}
@@ -114,7 +117,10 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
         	log.severe(name + ": " + ex.getMessage());
         	String msg = name + ": could not execute the sql \"" + sql + "\"";
         	if (player != null ) {
-        		msg += "    ?=" +player;
+        		msg += "    ?player=" +player;
+        	}
+        	if (uuid != null ) {
+        		msg += "    ?uuid=" +uuid;
         	}
         	log.severe(msg);
         } finally {
@@ -140,38 +146,17 @@ public class OnlineUsersMySQL extends OnlineUsersDataSource {
         	conn = getConnection();
         	s = conn.createStatement();
         	s.executeUpdate(sqlMakeTable);
-			// Run sqlCheckTableTimeTt query to see if time_total column exists, and check column type
-        	try {
-				// make sure `online` column exists
-	        	rs = s.executeQuery(sqlCheckTableOnline);
+
+			try {
+				// make sure `uuid` column exists, otherwise table is outdated and needs to be dropped and made again
+	        	rs = s.executeQuery(sqlCheckTableUUID);
 	        	if (!rs.first())
 				{
-					log.info(name + ": Updating Table, adding 'online' column");
-					s.executeUpdate(sqlAlterTableOnline);
+					log.info(name + ": Table outdated and missing UUID column, dropping and recreating");
+		        	s.executeUpdate(sqlDropTable);
+		        	s.executeUpdate(sqlMakeTable);
 				}
 				rs.close();
-
-				rs = s.executeQuery(sqlCheckTableTimeTt);
-	        	if (rs.first()) {
-					// `time_total` column exists, but does it need to be altered from TIME to INT?
-					if (!rs.getString("Type").toLowerCase().startsWith("int"))
-					{
-		        		log.info(name + ": Updating Table, changing 'time_total' column from TIME to INT");
-						// sadly altering a column directly from TIME to INT will reset all values to 0, so out of necessity,
-						// we first rename the column, then create a new one with the new type,
-						// then translate the values over, then delete the original column to clean up
-		        		s.executeUpdate(sqlAlterTableTimeTt1);
-		        		s.executeUpdate(sqlAlterTableTimeTt2);
-		        		s.executeUpdate(sqlAlterTableTimeTt3);
-		        		s.executeUpdate(sqlAlterTableTimeTt4);
-					}
-					rs.close();
-					s.close();
-					conn.close();
-					return true;
-				}
-        		log.info(name + ": Updating Table");
-        		s.executeUpdate(sqlAlterTableTimeTtA);
         	} catch (SQLException ex2){}
         	rs = s.executeQuery(sqlCheckTableExist);
         	if (rs.first()) {

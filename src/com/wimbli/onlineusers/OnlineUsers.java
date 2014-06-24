@@ -113,7 +113,7 @@ public class OnlineUsers extends JavaPlugin {
 	public void initOnlineUsers() {
 		Player[] players = this.getServer().getOnlinePlayers();
 		for (Player player : players) {
-			ds.addUser(player.getName());
+			ds.addUser(player.getName(), player.getUniqueId());
 		}
 	}
 	

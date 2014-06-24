@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.UUID;
 
 public class OnlineUsersFlatfile extends OnlineUsersDataSource {
 
@@ -71,8 +72,8 @@ public class OnlineUsersFlatfile extends OnlineUsersDataSource {
 	}
 
 	@Override
-	public synchronized boolean addUser(String username) {
-		removeUser(username);
+	public synchronized boolean addUser(String username, UUID uuid) {
+		removeUser(username, uuid);
 		BufferedWriter bw = null;
 		try {
 			bw = new BufferedWriter(new FileWriter(OnlineUsers.directory+OnlineUsers.flatfileData, true));
@@ -93,7 +94,7 @@ public class OnlineUsersFlatfile extends OnlineUsersDataSource {
 	}	
 
 	@Override
-	public synchronized boolean removeUser(String username) {
+	public synchronized boolean removeUser(String username, UUID uuid) {
 		FileWriter writer = null;
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(new File(OnlineUsers.directory+OnlineUsers.flatfileData)));
@@ -126,7 +127,7 @@ public class OnlineUsersFlatfile extends OnlineUsersDataSource {
 	}
 
 	@Override
-	public boolean setUserOffline(String username) {
+	public boolean setUserOffline(String username, UUID uuid) {
 		FileWriter writer = null;
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(new File(OnlineUsers.directory+OnlineUsers.flatfileData)));
