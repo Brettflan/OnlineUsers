@@ -2,7 +2,10 @@
 package com.wimbli.onlineusers;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.logging.Logger;
+
+import com.google.common.collect.ImmutableList;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -111,9 +114,10 @@ public class OnlineUsers extends JavaPlugin {
 	}
 	
 	public void initOnlineUsers() {
-		Player[] players = this.getServer().getOnlinePlayers();
-		for (Player player : players) {
-			ds.addUser(player.getName(), player.getUniqueId());
+		Collection players = ImmutableList.copyOf(this.getServer().getOnlinePlayers());
+		for (Object player : players)
+		{
+			ds.addUser(((Player)player).getName(), ((Player)player).getUniqueId());
 		}
 	}
 	
